@@ -1,27 +1,23 @@
 import { useRoles } from "@/hooks/use-roles";
-import { useNavigate } from "react-router";
+import { Navigate } from "react-router";
 
+// Sends each user to the dashboard page that matches their role
 const DashboardPage: React.FC = () => {
   const { isLoading, isOrganizer, isStaff } = useRoles();
-  const navigate = useNavigate();
 
   if (isLoading) {
-    <p>Loading...</p>;
+    return <p>Loading...</p>;
   }
 
   if (isOrganizer) {
-    navigate("/dashboard/events");
-    return;
+    return <Navigate to="/dashboard/events" replace />;
   }
 
   if (isStaff) {
-    navigate("/dashboard/validate-qr");
-    return;
+    return <Navigate to="/dashboard/validate-qr" replace />;
   }
 
-  navigate("/dashboard/tickets");
-
-  return <p>Loading...</p>;
+  return <Navigate to="/dashboard/tickets" replace />;
 };
 
 export default DashboardPage;

@@ -19,7 +19,7 @@ const OrganizersLandingPage: React.FC = () => {
         {isAuthenticated ? (
           <div className="flex gap-4">
             <Button
-              onClick={() => navigate("/dashboard/events")}
+              onClick={() => navigate("/dashboard")}
               className="cursor-pointer"
             >
               Dashboard

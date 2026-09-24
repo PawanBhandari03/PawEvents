@@ -57,7 +57,7 @@ const router = createBrowserRouter([
   {
     path: "/dashboard/events",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute roles={["ORGANIZER"]}>
         <DashboardListEventsPage />
       </ProtectedRoute>
     ),
@@ -81,7 +81,7 @@ const router = createBrowserRouter([
   {
     path: "/dashboard/validate-qr",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute roles={["STAFF"]}>
         <DashboardValidateQrPage />
       </ProtectedRoute>
     ),
@@ -89,7 +89,7 @@ const router = createBrowserRouter([
   {
     path: "/dashboard/events/create",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute roles={["ORGANIZER"]}>
         <DashboardManageEventPage />
       </ProtectedRoute>
     ),
@@ -97,7 +97,7 @@ const router = createBrowserRouter([
   {
     path: "/dashboard/events/update/:id",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute roles={["ORGANIZER"]}>
         <DashboardManageEventPage />
       </ProtectedRoute>
     ),

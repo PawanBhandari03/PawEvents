@@ -14,17 +14,20 @@ import { Link } from "react-router";
 
 const NavBar: React.FC = () => {
   const { user, signoutRedirect } = useAuth();
-  const { isOrganizer } = useRoles();
+  const { isOrganizer, isStaff } = useRoles();
 
   return (
     <div className="bg-gray-950 border-b border-gray-800 text-white">
       <div className="container mx-auto p-4">
         <div className="flex justify-between items-center">
           <div className="flex gap-10 md:gap-20 items-center">
-            <h1 className="text-xl font-bold">PawanBlog</h1>
+            <Link to="/" className="text-xl font-bold">
+              PawanBlog
+            </Link>
             <div className="text-gray-300 flex gap-8">
               {isOrganizer && <Link to="/dashboard/events">Events</Link>}
               <Link to="/dashboard/tickets">Tickets</Link>
+              {isStaff && <Link to="/dashboard/validate-qr">Scan QR</Link>}
             </div>
           </div>
 
