@@ -1,5 +1,7 @@
 {
   "realm": "event-ticket-platform",
+  "displayName": "PawEvents",
+  "displayNameHtml": "<b>Paw</b>Events",
   "enabled": true,
   "registrationAllowed": true,
   "loginWithEmailAllowed": true,
@@ -22,7 +24,7 @@
   "clients": [
     {
       "clientId": "event-ticket-platform-app",
-      "name": "Event Ticket Platform Frontend",
+      "name": "PawEvents",
       "enabled": true,
       "publicClient": true,
       "protocol": "openid-connect",
