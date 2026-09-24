@@ -55,9 +55,8 @@ export const Logo: React.FC<{ className?: string }> = ({ className }) => (
     className={cn("flex items-center gap-2 font-semibold", className)}
   >
     <img src="/favicon.svg" alt="" className="size-7" />
-    <span className="text-[15px] tracking-tight">PawanBlog</span>
-    <span className="hidden text-[15px] font-normal text-muted-foreground sm:inline">
-      Tickets
+    <span className="text-[15px] tracking-tight">
+      Paw<span className="text-brand">Events</span>
     </span>
   </Link>
 );

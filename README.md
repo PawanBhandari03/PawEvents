@@ -1,8 +1,8 @@
-# PawanBlog Event Ticket App Source Code
+# PawEvents
 
-This is the backend and frontend source code for the PawanBlog event ticket app build.
+An event ticketing platform: organizers publish events and sell tickets, attendees buy tickets and get a QR code, and door staff scan tickets at the entrance.
 
-The source code is provided as-is.
+Built with Spring Boot, PostgreSQL, Keycloak, React, TypeScript and Tailwind CSS.
 
 ## Running locally
 

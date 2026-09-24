@@ -1,5 +1,5 @@
 {
-  "name": "pawanblog-event-ticket-app",
+  "name": "pawevents",
   "private": true,
   "scripts": {
     "setup": "npm --prefix frontend install --legacy-peer-deps",

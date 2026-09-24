@@ -9,11 +9,11 @@
     <version>3.4.4</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
-  <groupId>com.pawanblog</groupId>
+  <groupId>com.pawevents</groupId>
   <artifactId>tickets</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>pawanblog-tickets</name>
-  <description>PawanBlog Event Ticket Platform</description>
+  <name>pawevents-tickets</name>
+  <description>PawEvents Event Ticket Platform</description>
   <url/>
   <licenses>
     <license/>
