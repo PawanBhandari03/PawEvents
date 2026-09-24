@@ -1,13 +1,78 @@
-import NavBar from "@/components/nav-bar";
-import { SimplePagination } from "@/components/simple-pagination";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { SpringBootPagination, TicketSummary } from "@/domain/domain";
-import { listTickets } from "@/lib/api";
-import { AlertCircle, DollarSign, Tag, Ticket } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { Link } from "react-router";
+import { ArrowUpRight, MapPin, Ticket } from "lucide-react";
+import { SimplePagination } from "@/components/simple-pagination";
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PageHeader,
+} from "@/components/states";
+import StatusBadge from "@/components/status-badge";
+import { Button } from "@/components/ui/button";
+import { SpringBootPagination, TicketSummary } from "@/domain/domain";
+import { listTickets } from "@/lib/api";
+import {
+  dateBlock,
+  errorMessage,
+  formatEventWhen,
+  formatPrice,
+} from "@/lib/format";
+
+const TicketStub: React.FC<{ ticket: TicketSummary }> = ({ ticket }) => {
+  const block = dateBlock(ticket.eventStart);
+
+  return (
+    <Link
+      to={`/dashboard/tickets/${ticket.id}`}
+      className="group flex overflow-hidden rounded-2xl border bg-card transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/30"
+    >
+      {/* Date column */}
+      <div className="flex w-20 shrink-0 flex-col items-center justify-center border-r-2 border-dashed bg-brand-soft px-2 text-brand sm:w-24">
+        {block ? (
+          <>
+            <span className="text-xs font-semibold tracking-wider">
+              {block.month}
+            </span>
+            <span className="font-display text-4xl leading-none">
+              {block.day}
+            </span>
+          </>
+        ) : (
+          <Ticket className="size-6" />
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-1 p-5">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="truncate font-semibold">{ticket.eventName}</h3>
+          <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {formatEventWhen(ticket.eventStart, ticket.eventEnd)}
+        </p>
+        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <MapPin className="size-3.5 shrink-0" />
+          <span className="truncate">{ticket.eventVenue}</span>
+        </p>
+        <div className="mt-3 flex items-center justify-between gap-2 border-t pt-3 text-sm">
+          <span>
+            {ticket.ticketType.name}
+            <span className="text-muted-foreground">
+              {" "}
+              · {formatPrice(ticket.ticketType.price)}
+            </span>
+          </span>
+          <StatusBadge
+            status={ticket.status}
+            label={ticket.status === "PURCHASED" ? "Active" : undefined}
+          />
+        </div>
+      </div>
+    </Link>
+  );
+};
 
 const DashboardListTickets: React.FC = () => {
   const { isLoading, user } = useAuth();
@@ -22,87 +87,46 @@ const DashboardListTickets: React.FC = () => {
     if (isLoading || !user?.access_token) {
       return;
     }
-
-    const doUseEffect = async () => {
-      try {
-        setTickets(await listTickets(user.access_token, page));
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else if (typeof err === "string") {
-          setError(err);
-        } else {
-          setError("An unknown error occurred");
-        }
-      }
-    };
-
-    doUseEffect();
+    listTickets(user.access_token, page)
+      .then(setTickets)
+      .catch((err) => setError(errorMessage(err)));
   }, [isLoading, user?.access_token, page]);
 
-  if (error) {
-    return (
-      <div className="bg-black min-h-screen text-white">
-        <NavBar />
-        <Alert variant="destructive" className="bg-gray-900 border-red-700">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-black min-h-screen text-white">
-      <NavBar />
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <PageHeader
+        eyebrow="Attendee"
+        title="My tickets"
+        description="Open a ticket to show its QR code at the entrance."
+      />
 
-      {/* Title */}
-      <div className="py-8 px-4">
-        <h1 className="text-2xl font-bold">Your Tickets</h1>
-        <p>Tickets you have purchased</p>
-      </div>
-
-      <div className="max-w-lg mx-auto">
-        {tickets?.content.map((ticketItem) => (
-          <Link to={`/dashboard/tickets/${ticketItem.id}`}>
-            <Card key={ticketItem.id} className="bg-gray-900 text-white">
-              <CardHeader>
-                <div className="flex justify-between">
-                  <div className="flex items-center gap-2">
-                    <Ticket className="h-5 w-5 text-gray-400" />
-                    <h3 className="font-bold text-xl">
-                      {ticketItem.ticketType.name}
-                    </h3>
-                  </div>
-                  <span>{ticketItem.status}</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Price */}
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-gray-400" />
-                  <p className="font-medium">${ticketItem.ticketType.price}</p>
-                </div>
-
-                {/* Ticket ID */}
-                <div className="flex items-center gap-2">
-                  <Tag className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <h4 className="font-medium">Ticket ID</h4>
-                    <p className="text-gray-400 font-mono text-sm">
-                      {ticketItem.id}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
-      <div className="flex justify-center py-8">
-        {tickets && (
-          <SimplePagination pagination={tickets} onPageChange={setPage} />
+      <div className="mt-8">
+        {error ? (
+          <ErrorState title="Couldn't load your tickets" message={error} />
+        ) : !tickets ? (
+          <LoadingState label="Loading tickets" />
+        ) : tickets.content.length === 0 ? (
+          <EmptyState
+            icon={<Ticket />}
+            title="No tickets yet"
+            description="When you buy a ticket it shows up here, ready to scan at the door."
+            action={
+              <Button asChild>
+                <Link to="/">Find an event</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <>
+            <div className="grid gap-4 md:grid-cols-2">
+              {tickets.content.map((ticket) => (
+                <TicketStub key={ticket.id} ticket={ticket} />
+              ))}
+            </div>
+            <div className="mt-10 flex justify-center">
+              <SimplePagination pagination={tickets} onPageChange={setPage} />
+            </div>
+          </>
         )}
       </div>
     </div>

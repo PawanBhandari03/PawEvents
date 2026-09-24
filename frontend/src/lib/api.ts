@@ -91,13 +91,16 @@ export const listEvents = async (
   accessToken: string,
   page: number,
 ): Promise<SpringBootPagination<EventSummary>> => {
-  const response = await fetch(`/api/v1/events?page=${page}&size=2`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
+  const response = await fetch(
+    `/api/v1/events?page=${page}&size=10&sort=createdAt,desc`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
 
   const responseBody = await readBody(response);
 
@@ -165,12 +168,15 @@ export const deleteEvent = async (
 export const listPublishedEvents = async (
   page: number,
 ): Promise<SpringBootPagination<PublishedEventSummary>> => {
-  const response = await fetch(`/api/v1/published-events?page=${page}&size=4`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+  const response = await fetch(
+    `/api/v1/published-events?page=${page}&size=8&sort=start,asc`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
 
   const responseBody = await readBody(response);
 
@@ -191,7 +197,7 @@ export const searchPublishedEvents = async (
   page: number,
 ): Promise<SpringBootPagination<PublishedEventSummary>> => {
   const response = await fetch(
-    `/api/v1/published-events?q=${encodeURIComponent(query)}&page=${page}&size=4`,
+    `/api/v1/published-events?q=${encodeURIComponent(query)}&page=${page}&size=8`,
     {
       method: "GET",
       headers: {
@@ -269,13 +275,16 @@ export const listTickets = async (
   accessToken: string,
   page: number,
 ): Promise<SpringBootPagination<TicketSummary>> => {
-  const response = await fetch(`/api/v1/tickets?page=${page}&size=8`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
+  const response = await fetch(
+    `/api/v1/tickets?page=${page}&size=10&sort=createdAt,desc`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
 
   const responseBody = await readBody(response);
 

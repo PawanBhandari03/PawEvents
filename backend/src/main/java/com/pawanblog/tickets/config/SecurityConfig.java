@@ -22,6 +22,9 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorize ->
             authorize
                 .requestMatchers(HttpMethod.GET, "/api/v1/published-events/**").permitAll()
+                // Buying and viewing tickets is for attendee accounts
+                .requestMatchers("/api/v1/events/*/ticket-types/*/tickets").hasRole("ATTENDEE")
+                .requestMatchers("/api/v1/tickets", "/api/v1/tickets/**").hasRole("ATTENDEE")
                 .requestMatchers("/api/v1/events", "/api/v1/events/*").hasRole("ORGANIZER")
                 .requestMatchers("/api/v1/ticket-validations").hasRole("STAFF")
                 // Catch all rule

@@ -1,77 +1,101 @@
+import { Link } from "react-router";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "react-oidc-context";
-import { useNavigate } from "react-router";
+import { useRoles } from "@/hooks/use-roles";
+import { useLogin } from "@/hooks/use-login";
+
+const STEPS = [
+  {
+    title: "Create",
+    body: "Add your event's name, venue, dates and as many ticket types as you need. Keep it as a draft until it's ready.",
+  },
+  {
+    title: "Sell",
+    body: "Publish and it's listed straight away. Set when sales open and close, cap each ticket type, or leave it unlimited.",
+  },
+  {
+    title: "Check in",
+    body: "Every ticket carries a unique QR code. Door staff scan it on their phone, and a ticket can't be used twice.",
+  },
+];
 
 const OrganizersLandingPage: React.FC = () => {
-  const { isAuthenticated, isLoading, signinRedirect, signoutRedirect } =
-    useAuth();
+  const { persona } = useRoles();
+  const { login } = useLogin();
 
-  const navigate = useNavigate();
-
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
+  const primaryAction =
+    persona === "organizer" ? (
+      <Button asChild size="lg">
+        <Link to="/dashboard/events/create">
+          Create an event <ArrowRight />
+        </Link>
+      </Button>
+    ) : persona === "guest" ? (
+      <Button size="lg" onClick={() => login("/dashboard")}>
+        Organizer log in <ArrowRight />
+      </Button>
+    ) : undefined;
 
   return (
-    <div className="bg-black min-h-screen text-white">
-      {/* Nav */}
-      <div className="flex justify-end p-4 container mx-auto">
-        {isAuthenticated ? (
-          <div className="flex gap-4">
-            <Button
-              onClick={() => navigate("/dashboard")}
-              className="cursor-pointer"
-            >
-              Dashboard
-            </Button>
-            <Button
-              className="cursor-pointer"
-              onClick={() => signoutRedirect()}
-            >
-              Log out
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-4">
-            <Button className="cursor-pointer" onClick={() => signinRedirect()}>
-              Log in
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <main className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {/* Left Column */}
-          <div className="space-y-4">
-            <h1 className="text-5xl font-bold">
-              Create, Manage, and Sell Events Tickets with Ease
-            </h1>
-            <p className="text-xl">
-              A complete platform for event organizers to create events, sell
-              tickets, and validate attendees with QR Codes.
+    <>
+      <section className="border-b">
+        <div className="mx-auto grid max-w-6xl gap-12 px-4 py-14 sm:px-6 md:py-20 lg:grid-cols-2 lg:items-center">
+          <div>
+            <p className="mb-4 text-xs font-medium tracking-[0.14em] text-brand uppercase">
+              For organizers
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Button
-                className="cursor-pointer"
-                onClick={() => navigate("/dashboard/events")}
-              >
-                Create an Event
+            <h1 className="font-display text-5xl leading-[0.95] sm:text-6xl lg:text-7xl">
+              Sell out your <em className="text-brand">next event.</em>
+            </h1>
+            <p className="mt-5 max-w-md text-lg text-muted-foreground">
+              Set up events, sell tickets and let people in at the door, all
+              without spreadsheets.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              {primaryAction}
+              <Button asChild size="lg" variant="outline">
+                <Link to="/">See live events</Link>
               </Button>
-              <Button>Browse Events</Button>
             </div>
+            {persona === "guest" && (
+              <p className="mt-4 text-sm text-muted-foreground">
+                Organizer accounts are set up by the platform team.
+              </p>
+            )}
+            {(persona === "attendee" || persona === "staff") && (
+              <p className="mt-4 text-sm text-muted-foreground">
+                Your account can't create events. Ask the platform team for
+                organizer access.
+              </p>
+            )}
           </div>
-          {/* Right Column */}
-          <div className="bg-gray-600 rounded-lg aspect-square w-full max-w-sm overflow-hidden">
+          <div className="aspect-[4/3] overflow-hidden rounded-3xl bg-muted">
             <img
-              src="organizers-landing-hero.png"
-              alt="A busy concert"
-              className="w-full h-full object-cover"
+              src="/organizers-landing-hero.png"
+              alt="A crowd at a concert"
+              className="h-full w-full object-cover"
             />
           </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <h2 className="max-w-md text-2xl font-semibold tracking-tight">
+          From first draft to the last guest through the door
+        </h2>
+        <ol className="mt-10 grid gap-10 md:grid-cols-3">
+          {STEPS.map((step, i) => (
+            <li key={step.title} className="border-t pt-6">
+              <span className="font-display text-5xl text-brand">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-4 text-lg font-semibold">{step.title}</h3>
+              <p className="mt-2 text-muted-foreground">{step.body}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </>
   );
 };
 

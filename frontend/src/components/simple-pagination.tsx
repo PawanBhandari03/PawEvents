@@ -14,29 +14,33 @@ export function SimplePagination<T>({
   const currentPage = pagination.number;
   const totalPages = pagination.totalPages;
 
+  if (totalPages <= 1) {
+    return null;
+  }
+
   return (
-    <div className="flex gap-2 items-center">
+    <nav className="flex items-center gap-3" aria-label="Pagination">
       <Button
+        variant="outline"
         size="sm"
-        className="cursor-pointer"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={pagination.first}
       >
-        <ChevronLeft className="h-4 w-4" />
-        <span className="sr-only">Previous Page</span>
+        <ChevronLeft />
+        Previous
       </Button>
-      <div className="text-sm">
-        Page {currentPage + 1} of {totalPages}
-      </div>
+      <span className="text-sm text-muted-foreground tabular-nums">
+        {currentPage + 1} / {totalPages}
+      </span>
       <Button
+        variant="outline"
         size="sm"
-        className="cursor-pointer"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={pagination.last}
       >
-        <ChevronRight className="h-4 w-4" />
-        <span className="sr-only">Next Page</span>
+        Next
+        <ChevronRight />
       </Button>
-    </div>
+    </nav>
   );
 }

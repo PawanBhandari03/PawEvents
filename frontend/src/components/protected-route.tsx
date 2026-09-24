@@ -1,10 +1,11 @@
 import { ReactNode, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { Link, useLocation } from "react-router";
-import { useRoles } from "@/hooks/use-roles";
+import { ShieldAlert } from "lucide-react";
+import { Role, useRoles } from "@/hooks/use-roles";
+import { useLogin } from "@/hooks/use-login";
 import { Button } from "./ui/button";
-
-type Role = "ORGANIZER" | "STAFF" | "ATTENDEE";
+import { LoadingState } from "./states";
 
 interface ProtectedRouteProperties {
   children: ReactNode;
@@ -12,32 +13,33 @@ interface ProtectedRouteProperties {
   roles?: Role[];
 }
 
+const ROLE_NAMES: Record<Role, string> = {
+  ORGANIZER: "organizer",
+  STAFF: "door staff",
+  ATTENDEE: "attendee",
+};
+
 const ProtectedRoute: React.FC<ProtectedRouteProperties> = ({
   children,
   roles,
 }) => {
-  const { isLoading, isAuthenticated, signinRedirect } = useAuth();
-  const {
-    isLoading: isRolesLoading,
-    isOrganizer,
-    isStaff,
-    isAttendee,
-  } = useRoles();
+  const { isLoading, isAuthenticated } = useAuth();
+  const { isOrganizer, isStaff, isAttendee } = useRoles();
+  const { login } = useLogin();
   const location = useLocation();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      localStorage.setItem("redirectPath", location.pathname + location.search);
-      signinRedirect();
+      login(location.pathname + location.search);
     }
-  }, [isLoading, isAuthenticated, location, signinRedirect]);
+  }, [isLoading, isAuthenticated, location, login]);
 
-  if (isLoading || (isAuthenticated && isRolesLoading)) {
-    return <p>Loading...</p>;
+  if (isLoading) {
+    return <LoadingState />;
   }
 
   if (!isAuthenticated) {
-    return <p>Redirecting to login...</p>;
+    return <LoadingState label="Redirecting to login" />;
   }
 
   const userRoles: Record<Role, boolean> = {
@@ -48,17 +50,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProperties> = ({
 
   if (roles && !roles.some((role) => userRoles[role])) {
     return (
-      <div className="bg-black min-h-screen text-white flex items-center justify-center p-4">
-        <div className="max-w-md text-center space-y-4">
-          <h1 className="text-2xl font-bold">Access denied</h1>
-          <p className="text-gray-400">
-            This page is only available to{" "}
-            {roles.map((r) => r.toLowerCase()).join(" / ")} accounts.
-          </p>
-          <Link to="/dashboard">
-            <Button className="cursor-pointer">Go to my dashboard</Button>
-          </Link>
+      <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-4 text-center">
+        <div className="mb-5 grid size-12 place-items-center rounded-full bg-secondary text-muted-foreground">
+          <ShieldAlert className="size-5" />
         </div>
+        <h1 className="font-display text-4xl">Not available</h1>
+        <p className="mt-3 text-muted-foreground">
+          This page is only for {roles.map((r) => ROLE_NAMES[r]).join(" or ")}{" "}
+          accounts. You're signed in with a different account type.
+        </p>
+        <Button asChild className="mt-6">
+          <Link to="/dashboard">Go to my dashboard</Link>
+        </Button>
       </div>
     );
   }

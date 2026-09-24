@@ -1,50 +1,50 @@
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
-import { useNavigate } from "react-router";
-import { useRoles } from "../hooks/use-roles";
+import { Link, useNavigate } from "react-router";
+import { ErrorState, LoadingState } from "@/components/states";
+import { Button } from "@/components/ui/button";
 
 const CallbackPage: React.FC = () => {
-  const { isLoading: isAuthLoading, isAuthenticated, error } = useAuth();
-  const { isLoading: isRolesLoading, isOrganizer } = useRoles();
+  const { isLoading, isAuthenticated, error } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuthLoading || isRolesLoading) {
+    if (isLoading || error || !isAuthenticated) {
       return;
     }
 
-    if (error) {
-      console.error("Authentication error:", error);
-      return;
-    }
-
-    if (isAuthenticated) {
-      const redirectPath = localStorage.getItem("redirectPath");
+    let redirectPath: string | null = null;
+    try {
+      redirectPath = localStorage.getItem("redirectPath");
       localStorage.removeItem("redirectPath");
-      if (redirectPath) {
-        navigate(redirectPath);
-      } else if (!isOrganizer) {
-        navigate("/");
-      } else {
-        navigate("/organizers");
-      }
+    } catch {
+      // Fall back to the role's home page
     }
-  }, [isAuthLoading, isRolesLoading, isAuthenticated, error, navigate, isOrganizer]);
 
-  if (isAuthLoading || isRolesLoading) {
-    return <p>Processing login...</p>;
-  }
+    if (redirectPath && redirectPath !== "/callback") {
+      navigate(redirectPath, { replace: true });
+    } else {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isLoading, isAuthenticated, error, navigate]);
 
   if (error) {
     return (
-      <div className="p-4 bg-red-950 text-red-200 border border-red-800 rounded">
-        <p className="font-bold">Authentication failed</p>
-        <p className="text-sm">{error.message}</p>
+      <div className="mx-auto max-w-md px-4 py-24">
+        <ErrorState
+          title="We couldn't sign you in"
+          message={error.message}
+          action={
+            <Button asChild size="sm" variant="outline">
+              <Link to="/">Back to home</Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
 
-  return <p>Completing login...</p>;
+  return <LoadingState label="Signing you in" />;
 };
 
 export default CallbackPage;

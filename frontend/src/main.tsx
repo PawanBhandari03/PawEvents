@@ -16,91 +16,85 @@ import DashboardListTickets from "./pages/dashboard-list-tickets.tsx";
 import DashboardPage from "./pages/dashboard-page.tsx";
 import DashboardViewTicketPage from "./pages/dashboard-view-ticket-page.tsx";
 import DashboardValidateQrPage from "./pages/dashboard-validate-qr-page.tsx";
+import NotFoundPage from "./pages/not-found-page.tsx";
+import AppLayout from "./components/app-layout.tsx";
+import { ThemeProvider } from "./lib/theme.tsx";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    Component: AttendeeLandingPage,
-  },
-  {
-    path: "/callback",
-    Component: CallbackPage,
-  },
-  {
-    path: "/login",
-    Component: LoginPage,
-  },
-  {
-    path: "/events/:id",
-    Component: PublishedEventsPage,
-  },
-  {
-    path: "/events/:eventId/purchase/:ticketTypeId",
-    element: (
-      <ProtectedRoute>
-        <PurchaseTicketPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/organizers",
-    Component: OrganizersLandingPage,
-  },
-  {
-    path: "/dashboard",
-    element: (
-      <ProtectedRoute>
-        <DashboardPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/dashboard/events",
-    element: (
-      <ProtectedRoute roles={["ORGANIZER"]}>
-        <DashboardListEventsPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/dashboard/tickets",
-    element: (
-      <ProtectedRoute>
-        <DashboardListTickets />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/dashboard/tickets/:id",
-    element: (
-      <ProtectedRoute>
-        <DashboardViewTicketPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/dashboard/validate-qr",
-    element: (
-      <ProtectedRoute roles={["STAFF"]}>
-        <DashboardValidateQrPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/dashboard/events/create",
-    element: (
-      <ProtectedRoute roles={["ORGANIZER"]}>
-        <DashboardManageEventPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/dashboard/events/update/:id",
-    element: (
-      <ProtectedRoute roles={["ORGANIZER"]}>
-        <DashboardManageEventPage />
-      </ProtectedRoute>
-    ),
+    Component: AppLayout,
+    children: [
+      { path: "/", Component: AttendeeLandingPage },
+      { path: "/callback", Component: CallbackPage },
+      { path: "/login", Component: LoginPage },
+      { path: "/events/:id", Component: PublishedEventsPage },
+      { path: "/organizers", Component: OrganizersLandingPage },
+      {
+        path: "/events/:eventId/purchase/:ticketTypeId",
+        element: (
+          <ProtectedRoute roles={["ATTENDEE"]}>
+            <PurchaseTicketPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/dashboard",
+        element: (
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/dashboard/events",
+        element: (
+          <ProtectedRoute roles={["ORGANIZER"]}>
+            <DashboardListEventsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/dashboard/events/create",
+        element: (
+          <ProtectedRoute roles={["ORGANIZER"]}>
+            <DashboardManageEventPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/dashboard/events/update/:id",
+        element: (
+          <ProtectedRoute roles={["ORGANIZER"]}>
+            <DashboardManageEventPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/dashboard/tickets",
+        element: (
+          <ProtectedRoute roles={["ATTENDEE"]}>
+            <DashboardListTickets />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/dashboard/tickets/:id",
+        element: (
+          <ProtectedRoute roles={["ATTENDEE"]}>
+            <DashboardViewTicketPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/dashboard/validate-qr",
+        element: (
+          <ProtectedRoute roles={["STAFF"]}>
+            <DashboardValidateQrPage />
+          </ProtectedRoute>
+        ),
+      },
+      { path: "*", Component: NotFoundPage },
+    ],
   },
 ]);
 
@@ -117,8 +111,10 @@ const oidcConfig = {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AuthProvider {...oidcConfig}>
-      <RouterProvider router={router} />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider {...oidcConfig}>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </ThemeProvider>
   </StrictMode>,
 );

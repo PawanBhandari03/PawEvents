@@ -6,6 +6,7 @@ import com.pawanblog.tickets.exceptions.EventUpdateException;
 import com.pawanblog.tickets.exceptions.QrCodeGenerationException;
 import com.pawanblog.tickets.exceptions.QrCodeNotFoundException;
 import com.pawanblog.tickets.exceptions.TicketNotFoundException;
+import com.pawanblog.tickets.exceptions.TicketSalesClosedException;
 import com.pawanblog.tickets.exceptions.TicketTypeNotFoundException;
 import com.pawanblog.tickets.exceptions.TicketsSoldOutException;
 import com.pawanblog.tickets.exceptions.UserNotFoundException;
@@ -33,6 +34,15 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
   }
 
+
+  @ExceptionHandler(TicketSalesClosedException.class)
+  public ResponseEntity<ErrorDto> handleTicketSalesClosedException(
+      TicketSalesClosedException ex) {
+    log.error("Caught TicketSalesClosedException", ex);
+    ErrorDto errorDto = new ErrorDto();
+    errorDto.setError(ex.getMessage());
+    return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
+  }
 
   @ExceptionHandler(TicketsSoldOutException.class)
   public ResponseEntity<ErrorDto> handleTicketsSoldOutException(TicketsSoldOutException ex) {

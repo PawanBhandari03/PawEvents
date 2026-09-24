@@ -1,6 +1,11 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useAuth } from "react-oidc-context";
 import { jwtDecode } from "jwt-decode";
+
+export type Role = "ORGANIZER" | "STAFF" | "ATTENDEE";
+
+// The four kinds of visitor the UI adapts to
+export type Persona = "guest" | "organizer" | "staff" | "attendee";
 
 interface UseRolesReturn {
   isLoading: boolean;
@@ -8,6 +13,7 @@ interface UseRolesReturn {
   isOrganizer: boolean;
   isAttendee: boolean;
   isStaff: boolean;
+  persona: Persona;
 }
 
 interface JwtPayload {
@@ -16,50 +22,42 @@ interface JwtPayload {
   };
 }
 
+const parseRoles = (accessToken: string | undefined): string[] => {
+  if (!accessToken) {
+    return [];
+  }
+  try {
+    const payload = jwtDecode<JwtPayload>(accessToken);
+    return (payload.realm_access?.roles || []).filter((role) =>
+      role.startsWith("ROLE_"),
+    );
+  } catch (error) {
+    console.error("Error parsing JWT: " + error);
+    return [];
+  }
+};
+
 export const useRoles = (): UseRolesReturn => {
-  const { isLoading: isAuthLoading, user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [roles, setRoles] = useState<string[]>([]);
-  const [isOrganizer, setIsOrganizer] = useState(false);
-  const [isAttendee, setIsAttendee] = useState(false);
-  const [isStaff, setIsStaff] = useState(false);
+  const { isLoading, isAuthenticated, user } = useAuth();
+  const accessToken = user?.access_token;
 
-  useEffect(() => {
-    setIsLoading(true);
+  return useMemo(() => {
+    const roles = parseRoles(accessToken);
+    const isOrganizer = roles.includes("ROLE_ORGANIZER");
+    const isStaff = roles.includes("ROLE_STAFF");
+    const isAttendee = roles.includes("ROLE_ATTENDEE");
 
-    if (isAuthLoading || !user?.access_token) {
-      setRoles([]);
-      setIsOrganizer(false);
-      setIsAttendee(false);
-      setIsStaff(false);
-      setIsLoading(isAuthLoading);
-      return;
+    let persona: Persona = "guest";
+    if (isAuthenticated) {
+      if (isOrganizer) {
+        persona = "organizer";
+      } else if (isStaff) {
+        persona = "staff";
+      } else {
+        persona = "attendee";
+      }
     }
 
-    try {
-      const payload = jwtDecode<JwtPayload>(user?.access_token);
-      const allRoles = payload.realm_access?.roles || [];
-      const filteredRoles = allRoles.filter((role) => role.startsWith("ROLE_"));
-      setRoles(filteredRoles);
-      setIsOrganizer(filteredRoles.includes("ROLE_ORGANIZER"));
-      setIsAttendee(filteredRoles.includes("ROLE_ATTENDEE"));
-      setIsStaff(filteredRoles.includes("ROLE_STAFF"));
-    } catch (error) {
-      console.error("Error parsing JWT: " + error);
-      setRoles([]);
-      setIsOrganizer(false);
-      setIsAttendee(false);
-      setIsStaff(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isAuthLoading, user?.access_token]);
-
-  return {
-    isLoading,
-    roles,
-    isOrganizer,
-    isAttendee,
-    isStaff,
-  };
+    return { isLoading, roles, isOrganizer, isAttendee, isStaff, persona };
+  }, [isLoading, isAuthenticated, accessToken]);
 };

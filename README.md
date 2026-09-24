@@ -29,10 +29,11 @@ Open http://localhost:5173.
 | Where | Username | Password | Role |
 |---|---|---|---|
 | Keycloak admin (http://localhost:9090) | `admin` | `admin` | admin |
-| App | `organizer` | `password` | `ROLE_ORGANIZER` – create/publish events |
-| App | `attendee` | `password` | `ROLE_ATTENDEE` – buy tickets |
-| App | `staff` | `password` | `ROLE_STAFF` – validate tickets (`/dashboard/validate-qr`) |
+| App | `organizer` | `password` | `ROLE_ORGANIZER` – create, edit and publish events |
+| App | `attendee` | `password` | `ROLE_ATTENDEE` – buy tickets, show QR codes |
+| App | `staff` | `password` | `ROLE_STAFF` – check tickets in at the door |
 
+Each account type only sees what it can do. Guests can browse events and sign up.
 New users can sign up on the Keycloak login page and get `ROLE_ATTENDEE` by default.
 
 On a fresh Keycloak volume, `backend/keycloak/event-ticket-platform-realm.json` is imported

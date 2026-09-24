@@ -28,11 +28,11 @@ export interface CreateTicketTypeRequest {
 
 export interface CreateEventRequest {
   name: string;
-  start?: Date;
-  end?: Date;
+  start?: string;
+  end?: string;
   venue: string;
-  salesStart?: Date;
-  salesEnd?: Date;
+  salesStart?: string;
+  salesEnd?: string;
   status: EventStatusEnum;
   ticketTypes: CreateTicketTypeRequest[];
 }
@@ -48,11 +48,11 @@ export interface UpdateTicketTypeRequest {
 export interface UpdateEventRequest {
   id: string;
   name: string;
-  start?: Date;
-  end?: Date;
+  start?: string;
+  end?: string;
   venue: string;
-  salesStart?: Date;
-  salesEnd?: Date;
+  salesStart?: string;
+  salesEnd?: string;
   status: EventStatusEnum;
   ticketTypes: UpdateTicketTypeRequest[];
 }
@@ -149,6 +149,8 @@ export interface PublishedEventDetails {
   start?: Date;
   end?: Date;
   venue: string;
+  salesStart?: Date;
+  salesEnd?: Date;
   ticketTypes: PublishedEventTicketTypeDetails[];
 }
 
@@ -167,11 +169,17 @@ export interface TicketSummary {
   id: string;
   status: TicketStatus;
   ticketType: TicketSummaryTicketType;
+  eventId: string;
+  eventName: string;
+  eventVenue: string;
+  eventStart?: Date;
+  eventEnd?: Date;
 }
 
 export interface TicketDetails {
   id: string;
   status: TicketStatus;
+  ticketTypeName: string;
   price: number;
   description: string;
   eventName: string;
