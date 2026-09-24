@@ -33,11 +33,11 @@
       "implicitFlowEnabled": false,
       "rootUrl": "http://localhost:5173",
       "baseUrl": "/",
-      "redirectUris": ["http://localhost:5173/*"],
-      "webOrigins": ["http://localhost:5173"],
+      "redirectUris": ["http://localhost:5173/*", "https://pawevents.vercel.app/*"],
+      "webOrigins": ["http://localhost:5173", "https://pawevents.vercel.app"],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:5173/*"
+        "post.logout.redirect.uris": "http://localhost:5173/*##https://pawevents.vercel.app/*"
       }
     }
   ],

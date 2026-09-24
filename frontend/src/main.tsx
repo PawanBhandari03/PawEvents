@@ -99,10 +99,12 @@ const router = createBrowserRouter([
 ]);
 
 const oidcConfig = {
-  authority: "http://localhost:9090/realms/event-ticket-platform",
+  authority:
+    import.meta.env.VITE_KEYCLOAK_AUTHORITY ??
+    "http://localhost:9090/realms/event-ticket-platform",
   client_id: "event-ticket-platform-app",
-  redirect_uri: "http://localhost:5173/callback",
-  post_logout_redirect_uri: "http://localhost:5173/",
+  redirect_uri: `${window.location.origin}/callback`,
+  post_logout_redirect_uri: `${window.location.origin}/`,
   // Strip ?code=&state= from the URL once the login callback is processed
   onSigninCallback: () => {
     window.history.replaceState({}, document.title, window.location.pathname);
