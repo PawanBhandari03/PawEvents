@@ -2,32 +2,41 @@ services:
   # Our PostgreSQL database
   db:
     # Using the latest PostgreSQL image
-    image: postgres:latest
+    image: postgres:16
     ports:
-      - "5432:5432"
+      - "5433:5432"
     restart: always
     environment:
       POSTGRES_PASSWORD: Pawan003
+      TZ: Asia/Kolkata
+    command: ["postgres", "-c", "timezone=Asia/Kolkata", "-c", "log_timezone=Asia/Kolkata"]
 
   # Database management interface
   adminer:
     image: adminer:latest
     restart: always
     ports:
-      - 8888:8080
+      - 8889:8080
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     ports:
       - "9090:8080"
     environment:
+      # Newer Keycloak versions use KC_BOOTSTRAP_ADMIN_*; older ones use KEYCLOAK_ADMIN*
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     volumes:
       - keycloak-data:/opt/keycloak/data
+      # Realm, client, roles and test users are imported automatically on startup
+      # (skipped if the realm already exists)
+      - ./keycloak:/opt/keycloak/data/import:ro
     command:
       - start-dev
       - --db=dev-file
+      - --import-realm
 
 volumes:
   keycloak-data:

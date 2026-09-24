@@ -13,6 +13,29 @@ import {
   UpdateEventRequest,
 } from "@/domain/domain";
 
+// Reads a response body without blowing up on empty or non-JSON bodies
+// (e.g. Spring Security's bare 401/403 responses).
+const readBody = async (response: Response): Promise<unknown> => {
+  const text = await response.text();
+  if (text) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      // Fall through to a status-based error below
+    }
+  }
+  if (response.ok) {
+    return null;
+  }
+  if (response.status === 401) {
+    return { error: "Your session has expired. Please log in again." };
+  }
+  if (response.status === 403) {
+    return { error: "You do not have permission to perform this action." };
+  }
+  return { error: `Request failed with status ${response.status}` };
+};
+
 export const createEvent = async (
   accessToken: string,
   request: CreateEventRequest,
@@ -26,7 +49,7 @@ export const createEvent = async (
     body: JSON.stringify(request),
   });
 
-  const responseBody = await response.json();
+  const responseBody = await readBody(response);
 
   if (!response.ok) {
     if (isErrorResponse(responseBody)) {
@@ -52,7 +75,7 @@ export const updateEvent = async (
     body: JSON.stringify(request),
   });
 
-  const responseBody = await response.json();
+  const responseBody = await readBody(response);
 
   if (!response.ok) {
     if (isErrorResponse(responseBody)) {
@@ -76,7 +99,7 @@ export const listEvents = async (
     },
   });
 
-  const responseBody = await response.json();
+  const responseBody = await readBody(response);
 
   if (!response.ok) {
     if (isErrorResponse(responseBody)) {
@@ -102,7 +125,7 @@ export const getEvent = async (
     },
   });
 
-  const responseBody = await response.json();
+  const responseBody = await readBody(response);
 
   if (!response.ok) {
     if (isErrorResponse(responseBody)) {
@@ -129,7 +152,7 @@ export const deleteEvent = async (
   });
 
   if (!response.ok) {
-    const responseBody = await response.json();
+    const responseBody = await readBody(response);
     if (isErrorResponse(responseBody)) {
       throw new Error(responseBody.error);
     } else {
@@ -149,7 +172,7 @@ export const listPublishedEvents = async (
     },
   });
 
-  const responseBody = await response.json();
+  const responseBody = await readBody(response);
 
   if (!response.ok) {
     if (isErrorResponse(responseBody)) {
@@ -168,7 +191,7 @@ export const searchPublishedEvents = async (
   page: number,
 ): Promise<SpringBootPagination<PublishedEventSummary>> => {
   const response = await fetch(
-    `/api/v1/published-events?q=${query}&page=${page}&size=4`,
+    `/api/v1/published-events?q=${encodeURIComponent(query)}&page=${page}&size=4`,
     {
       method: "GET",
       headers: {
@@ -177,7 +200,7 @@ export const searchPublishedEvents = async (
     },
   );
 
-  const responseBody = await response.json();
+  const responseBody = await readBody(response);
 
   if (!response.ok) {
     if (isErrorResponse(responseBody)) {
@@ -201,7 +224,7 @@ export const getPublishedEvent = async (
     },
   });
 
-  const responseBody = await response.json();
+  const responseBody = await readBody(response);
 
   if (!response.ok) {
     if (isErrorResponse(responseBody)) {
@@ -232,7 +255,7 @@ export const purchaseTicket = async (
   );
 
   if (!response.ok) {
-    const responseBody = await response.json();
+    const responseBody = await readBody(response);
     if (isErrorResponse(responseBody)) {
       throw new Error(responseBody.error);
     } else {
@@ -254,7 +277,7 @@ export const listTickets = async (
     },
   });
 
-  const responseBody = await response.json();
+  const responseBody = await readBody(response);
 
   if (!response.ok) {
     if (isErrorResponse(responseBody)) {
@@ -280,7 +303,7 @@ export const getTicket = async (
     },
   });
 
-  const responseBody = await response.json();
+  const responseBody = await readBody(response);
 
   if (!response.ok) {
     if (isErrorResponse(responseBody)) {
@@ -325,7 +348,7 @@ export const validateTicket = async (
     body: JSON.stringify(request),
   });
 
-  const responseBody = await response.json();
+  const responseBody = await readBody(response);
 
   if (!response.ok) {
     if (isErrorResponse(responseBody)) {
